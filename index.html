@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Daily Hitman Results</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:#0d0d0d;padding:16px;font-family:Arial,sans-serif}
+#dh{background:#111;border-radius:14px;padding:24px 20px 20px;max-width:700px;margin:0 auto}
+.dh-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px}
+.dh-title{font-family:'Rajdhani',Arial,sans-serif;font-size:20px;font-weight:700;color:#ffffff;letter-spacing:1.5px;text-transform:uppercase}
+.dh-right{display:flex;align-items:center;gap:8px}
+.dh-badge{background:#1a1a1a;border:0.5px solid #fff;color:#fff;font-size:10px;font-weight:700;padding:3px 9px;border-radius:4px;letter-spacing:0.5px}
+.dh-live{display:flex;align-items:center;gap:5px;background:#1a1a1a;border:0.5px solid #2a2a2a;color:#4ade80;font-size:10px;font-weight:700;padding:3px 8px;border-radius:4px;letter-spacing:1px}
+.dh-dot{width:6px;height:6px;border-radius:50%;background:#4ade80;animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.4;transform:scale(0.7)}}
+.dh-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:20px}
+.dh-stat{background:#1a1a1a;border-top:2px solid #fff;border-radius:0 0 8px 8px;padding:10px 14px}
+.dh-stat-label{font-size:10px;color:#666;text-transform:uppercase;letter-spacing:0.6px;margin-bottom:4px}
+.dh-stat-val{font-family:'Rajdhani',Arial,sans-serif;font-size:26px;font-weight:700;color:#4ade80}
+.dh-nav{display:flex;gap:4px;border-bottom:1px solid #222;margin-bottom:18px}
+.dh-nav button{font-size:12px;font-weight:700;letter-spacing:1px;padding:7px 16px;border:none;border-radius:6px 6px 0 0;cursor:pointer;font-family:Arial,sans-serif;text-transform:uppercase}
+.dh-legend{display:flex;gap:16px;margin-bottom:10px}
+.dh-legend span{display:flex;align-items:center;gap:5px;font-size:11px;color:#666}
+.dh-legend i{width:8px;height:8px;border-radius:2px;display:inline-block}
+.dh-wrap{position:relative;width:100%;height:220px}
+@media(max-width:480px){.dh-wrap{height:180px}}
+.dh-sport-row{display:grid;grid-template-columns:80px 1fr 64px;align-items:center;gap:10px;padding:9px 0;border-bottom:0.5px solid #1a1a1a}
+.dh-sport-row:last-child{border-bottom:none}
+.dh-bar-bg{background:#1a1a1a;border-radius:3px;height:6px;overflow:hidden}
+.dh-bar-fill{height:100%;border-radius:3px;width:0;transition:width .6s ease}
+.dh-foot{font-size:10px;color:#333;text-align:right;margin-top:12px}
+</style>
+</head>
+<body>
+<div id="dh">
+  <div class="dh-top">
+    <div class="dh-title">2026 Results</div>
+    <div class="dh-right">
+      <div class="dh-badge" id="cur-badge">—</div>
+      <div class="dh-live"><span class="dh-dot"></span>LIVE</div>
+    </div>
+  </div>
+
+  <div class="dh-stats">
+    <div class="dh-stat">
+      <div class="dh-stat-label">Total Units</div>
+      <div class="dh-stat-val" id="stat-units">—</div>
+    </div>
+    <div class="dh-stat">
+      <div class="dh-stat-label">Total ROI %</div>
+      <div class="dh-stat-val" id="stat-roi">—</div>
+    </div>
+  </div>
+
+  <div class="dh-nav">
+    <button id="btn-m" onclick="showTab('m')" style="background:#fff;color:#111">Monthly</button>
+    <button id="btn-s" onclick="showTab('s')" style="background:#2a2a2a;color:#fff">By Sport</button>
+  </div>
+
+  <div id="view-m">
+    <div class="dh-legend">
+      <span><i style="background:#4ade80"></i>Monthly profit</span>
+      <span><i style="background:#ccc"></i>Cumulative</span>
+    </div>
+    <div class="dh-wrap">
+      <div id="chart-msg" style="color:#444;font-size:13px;padding:40px;text-align:center">Loading...</div>
+      <canvas id="dhChart" role="img" aria-label="Daily Hitman 2026 monthly profit" style="display:none"></canvas>
+    </div>
+  </div>
+
+  <div id="view-s" style="display:none">
+    <div id="sport-rows"></div>
+  </div>
+
+  <div class="dh-foot" id="dhFoot"></div>
+</div>
+
+<script>
+var CSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSBxFrXiuKM6Q43cx5CtEVaWIvEJhbLrneRH7WTXYkkFLCIWKlRjxm-W25GgMaNFLcZR941y2NzQXS_/pub?gid=1143509559&single=true&output=csv';
+
+var MONTHLY = [], SPORTS = [], chartInst = null, chartReady = false, dataReady = false;
+
+function parseCSV(text){
+  var rows = text.trim().split('\n').map(function(r){
+    return r.split(',').map(function(c){return c.trim().replace(/^"|"$/g,'');});
+  });
+  MONTHLY = []; SPORTS = [];
+  var monthNames = ['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'];
+  var inSports = false;
+  for(var i=1;i<rows.length;i++){
+    var row = rows[i];
+    if(!row||!row[0]||row[0]===''){inSports=true;continue;}
+    var c0 = row[0].toLowerCase().trim();
+    if(c0.includes('month')||c0.includes('sport')||c0==='')continue;
+    var isMonth = monthNames.some(function(m){return c0.startsWith(m);});
+    if(isMonth){
+      var p=parseFloat(row[1]),cu=parseFloat(row[2]);
+      if(!isNaN(p))MONTHLY.push({month:row[0],profit:p,total:isNaN(cu)?p:cu});
+    } else if(inSports){
+      var u=parseFloat(row[3]),w=parseFloat(row[1]);
+      if(!isNaN(u)&&row[0].trim()!=='')SPORTS.push({sport:row[0],units:u,wagered:isNaN(w)?0:w});
+    }
+  }
+}
+
+function updateStats(){
+  if(!MONTHLY.length)return;
+  var totalUnits = MONTHLY[MONTHLY.length-1].total;
+  var totalWagered = 0;
+  SPORTS.forEach(function(s){totalWagered+=s.wagered;});
+  var roi = totalWagered>0?(totalUnits/totalWagered*100):0;
+  var active = MONTHLY.filter(function(m){return m.profit!==0;});
+  if(active.length){
+    var last=active[active.length-1];
+    document.getElementById('cur-badge').textContent=last.month.substring(0,3).toUpperCase()+': '+(last.profit>=0?'+':'')+last.profit.toFixed(2)+'u';
+  }
+  document.getElementById('stat-units').textContent=(totalUnits>=0?'+':'')+totalUnits.toFixed(2)+'u';
+  document.getElementById('stat-roi').textContent=(roi>=0?'+':'')+roi.toFixed(2)+'%';
+  document.getElementById('dhFoot').textContent='Updated '+new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
+}
+
+function buildChart(){
+  if(!chartReady||!dataReady||!MONTHLY.length)return;
+  if(chartInst){chartInst.destroy();chartInst=null;}
+  var active=MONTHLY.filter(function(m){return m.total>0||m.profit!==0;});
+  if(!active.length)active=MONTHLY;
+  document.getElementById('chart-msg').style.display='none';
+  var canvas=document.getElementById('dhChart');canvas.style.display='block';
+  chartInst=new Chart(canvas,{
+    type:'bar',
+    data:{
+      labels:active.map(function(d){return d.month;}),
+      datasets:[
+        {type:'line',label:'Cumulative',data:active.map(function(d){return d.total;}),borderColor:'#ccc',backgroundColor:'rgba(200,200,200,0.06)',borderWidth:2,pointRadius:5,pointBackgroundColor:'#fff',pointBorderColor:'#111',pointBorderWidth:2,fill:true,tension:0.4,order:1},
+        {type:'bar',label:'Monthly',data:active.map(function(d){return d.profit;}),backgroundColor:active.map(function(d){return d.profit>=0?'rgba(74,222,128,0.85)':'rgba(248,113,113,0.85)';}),borderRadius:5,order:2}
+      ]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{backgroundColor:'#111',borderColor:'#333',borderWidth:1,titleColor:'#fff',bodyColor:'#ccc',padding:10,callbacks:{label:function(ctx){var v=ctx.parsed.y;return(ctx.dataset.label==='Cumulative'?'Total: ':'Month: ')+(v>=0?'+':'')+v.toFixed(2)+'u';}}}},
+      scales:{
+        x:{ticks:{color:'#666',font:{size:12},autoSkip:false},grid:{display:false},border:{color:'#1e1e1e'}},
+        y:{ticks:{color:'#555',font:{size:11},callback:function(v){return(v>=0?'+':'')+v.toFixed(0)+'u';}},grid:{color:'#181818',lineWidth:0.5},border:{display:false}}
+      },
+      animation:{duration:800,easing:'easeOutQuart'}
+    }
+  });
+}
+
+function buildSport(){
+  if(!SPORTS.length)return;
+  var max=Math.max.apply(null,SPORTS.map(function(s){return Math.abs(s.units);}));
+  var html='';
+  SPORTS.forEach(function(s){
+    var pct=(Math.abs(s.units)/max*100).toFixed(1);
+    var color=s.units>0?'#4ade80':s.units<0?'#f87171':'#444';
+    var val=(s.units>=0?'+':'')+s.units.toFixed(2)+'u';
+    html+='<div class="dh-sport-row"><div style="font-size:12px;color:#ccc">'+s.sport+'</div><div class="dh-bar-bg"><div class="dh-bar-fill" data-pct="'+pct+'" style="background:'+color+'"></div></div><div style="font-family:Rajdhani,Arial,sans-serif;font-size:14px;font-weight:700;text-align:right;color:'+color+'">'+val+'</div></div>';
+  });
+  document.getElementById('sport-rows').innerHTML=html;
+  setTimeout(function(){document.querySelectorAll('.dh-bar-fill').forEach(function(el){el.style.width=el.dataset.pct+'%';});},60);
+}
+
+function showTab(tab){
+  var bm=document.getElementById('btn-m'),bs=document.getElementById('btn-s');
+  if(tab==='m'){
+    bm.style.background='#fff';bm.style.color='#111';
+    bs.style.background='#2a2a2a';bs.style.color='#fff';
+    document.getElementById('view-m').style.display='block';
+    document.getElementById('view-s').style.display='none';
+    buildChart();
+  } else {
+    bs.style.background='#fff';bs.style.color='#111';
+    bm.style.background='#2a2a2a';bm.style.color='#fff';
+    document.getElementById('view-m').style.display='none';
+    document.getElementById('view-s').style.display='block';
+    buildSport();
+  }
+}
+
+fetch(CSV)
+  .then(function(r){return r.text();})
+  .then(function(t){parseCSV(t);dataReady=true;updateStats();buildChart();buildSport();})
+  .catch(function(){
+    document.getElementById('chart-msg').textContent='Could not load data.';
+  });
+
+var s=document.createElement('script');
+s.src='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js';
+s.onload=function(){chartReady=true;buildChart();};
+document.head.appendChild(s);
+</script>
+</body>
+</html>
