@@ -98,7 +98,8 @@ function parseCSV(text){
     var isMonth = monthNames.some(function(m){return c0.startsWith(m);});
     if(isMonth){
       var p=parseFloat(row[1]),cu=parseFloat(row[2]);
-      if(!isNaN(p))MONTHLY.push({month:row[0],profit:p,total:isNaN(cu)?p:cu});
+      // only include months with non-zero profit
+      if(!isNaN(p) && p !== 0) MONTHLY.push({month:row[0],profit:p,total:isNaN(cu)?p:cu});
     } else if(inSports){
       var u=parseFloat(row[3]),w=parseFloat(row[1]);
       if(!isNaN(u)&&row[0].trim()!=='')SPORTS.push({sport:row[0],units:u,wagered:isNaN(w)?0:w});
@@ -112,11 +113,8 @@ function updateStats(){
   var totalWagered = 0;
   SPORTS.forEach(function(s){totalWagered+=s.wagered;});
   var roi = totalWagered>0?(totalUnits/totalWagered*100):0;
-  var active = MONTHLY.filter(function(m){return m.profit!==0;});
-  if(active.length){
-    var last=active[active.length-1];
-    document.getElementById('cur-badge').textContent=last.month.substring(0,3).toUpperCase()+': '+(last.profit>=0?'+':'')+last.profit.toFixed(2)+'u';
-  }
+  var last = MONTHLY[MONTHLY.length-1];
+  document.getElementById('cur-badge').textContent=last.month.substring(0,3).toUpperCase()+': '+(last.profit>=0?'+':'')+last.profit.toFixed(2)+'u';
   document.getElementById('stat-units').textContent=(totalUnits>=0?'+':'')+totalUnits.toFixed(2)+'u';
   document.getElementById('stat-roi').textContent=(roi>=0?'+':'')+roi.toFixed(2)+'%';
   document.getElementById('dhFoot').textContent='Updated '+new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
@@ -125,17 +123,15 @@ function updateStats(){
 function buildChart(){
   if(!chartReady||!dataReady||!MONTHLY.length)return;
   if(chartInst){chartInst.destroy();chartInst=null;}
-  var active=MONTHLY.filter(function(m){return m.total>0||m.profit!==0;});
-  if(!active.length)active=MONTHLY;
   document.getElementById('chart-msg').style.display='none';
   var canvas=document.getElementById('dhChart');canvas.style.display='block';
   chartInst=new Chart(canvas,{
     type:'bar',
     data:{
-      labels:active.map(function(d){return d.month;}),
+      labels:MONTHLY.map(function(d){return d.month;}),
       datasets:[
-        {type:'line',label:'Cumulative',data:active.map(function(d){return d.total;}),borderColor:'#ccc',backgroundColor:'rgba(200,200,200,0.06)',borderWidth:2,pointRadius:5,pointBackgroundColor:'#fff',pointBorderColor:'#111',pointBorderWidth:2,fill:true,tension:0.4,order:1},
-        {type:'bar',label:'Monthly',data:active.map(function(d){return d.profit;}),backgroundColor:active.map(function(d){return d.profit>=0?'rgba(74,222,128,0.85)':'rgba(248,113,113,0.85)';}),borderRadius:5,order:2}
+        {type:'line',label:'Cumulative',data:MONTHLY.map(function(d){return d.total;}),borderColor:'#ccc',backgroundColor:'rgba(200,200,200,0.06)',borderWidth:2,pointRadius:5,pointBackgroundColor:'#fff',pointBorderColor:'#111',pointBorderWidth:2,fill:true,tension:0.4,order:1},
+        {type:'bar',label:'Monthly',data:MONTHLY.map(function(d){return d.profit;}),backgroundColor:MONTHLY.map(function(d){return d.profit>=0?'rgba(74,222,128,0.85)':'rgba(248,113,113,0.85)';}),borderRadius:5,order:2}
       ]
     },
     options:{
@@ -152,9 +148,11 @@ function buildChart(){
 
 function buildSport(){
   if(!SPORTS.length)return;
-  var max=Math.max.apply(null,SPORTS.map(function(s){return Math.abs(s.units);}));
+  var active = SPORTS.filter(function(s){return s.units !== 0;});
+  if(!active.length)active=SPORTS;
+  var max=Math.max.apply(null,active.map(function(s){return Math.abs(s.units);}));
   var html='';
-  SPORTS.forEach(function(s){
+  active.forEach(function(s){
     var pct=(Math.abs(s.units)/max*100).toFixed(1);
     var color=s.units>0?'#4ade80':s.units<0?'#f87171':'#444';
     var val=(s.units>=0?'+':'')+s.units.toFixed(2)+'u';
@@ -184,9 +182,7 @@ function showTab(tab){
 fetch(CSV)
   .then(function(r){return r.text();})
   .then(function(t){parseCSV(t);dataReady=true;updateStats();buildChart();buildSport();})
-  .catch(function(){
-    document.getElementById('chart-msg').textContent='Could not load data.';
-  });
+  .catch(function(){document.getElementById('chart-msg').textContent='Could not load data.';});
 
 var s=document.createElement('script');
 s.src='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js';
