@@ -184,6 +184,9 @@ var s=document.createElement('script');
 s.src='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js';
 s.onload=function(){chartReady=true;buildChart();};
 document.head.appendChild(s);
+
+document.addEventListener('touchstart',function(e){e.stopPropagation();},{passive:true,capture:true});
+document.addEventListener('touchend',function(e){e.stopPropagation();},{passive:true,capture:true});
 </script>
 </body>
 </html>
