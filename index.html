@@ -113,7 +113,7 @@ function updateStats(){
   document.getElementById('cur-badge').textContent=last.month.substring(0,3).toUpperCase()+': '+(last.profit>=0?'+':'')+last.profit.toFixed(2)+'u';
   document.getElementById('stat-units').textContent=(totalUnits>=0?'+':'')+totalUnits.toFixed(2)+'u';
   document.getElementById('stat-roi').textContent=(roi>=0?'+':'')+roi.toFixed(2)+'%';
-  document.getElementById('dhFoot').textContent='Updated '+new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
+  document.getElementById('dhFoot').textContent='Updated '+new Date().toLocaleDateString('en-US',{month:'long',year:'numeric'});
 }
 
 function buildChart(){
