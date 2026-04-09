@@ -21,7 +21,7 @@ html,body{background:#0a0a0a;padding:16px;font-family:Arial,sans-serif}
 .dh-stat-label{font-size:10px;color:#666;text-transform:uppercase;letter-spacing:0.6px;margin-bottom:4px}
 .dh-stat-val{font-family:'Rajdhani',Arial,sans-serif;font-size:26px;font-weight:700;color:#4ade80}
 .dh-nav{display:flex;gap:4px;border-bottom:1px solid #222;margin-bottom:18px}
-.dh-nav button{font-size:12px;font-weight:700;letter-spacing:1px;padding:12px 20px;border:none;border-radius:6px 6px 0 0;cursor:pointer;font-family:Arial,sans-serif;text-transform:uppercase;touch-action:manipulation;-webkit-tap-highlight-color:transparent;min-width:80px}
+.dh-nav button{font-size:12px;font-weight:700;letter-spacing:1px;padding:10px 18px;border:none;border-radius:6px 6px 0 0;cursor:pointer;font-family:Arial,sans-serif;text-transform:uppercase;touch-action:manipulation}
 .dh-legend{display:flex;gap:16px;margin-bottom:10px}
 .dh-legend span{display:flex;align-items:center;gap:5px;font-size:11px;color:#666}
 .dh-legend i{width:8px;height:8px;border-radius:2px;display:inline-block}
@@ -80,7 +80,6 @@ html,body{background:#0a0a0a;padding:16px;font-family:Arial,sans-serif}
 
 <script>
 var CSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSBxFrXiuKM6Q43cx5CtEVaWIvEJhbLrneRH7WTXYkkFLCIWKlRjxm-W25GgMaNFLcZR941y2NzQXS_/pub?gid=1143509559&single=true&output=csv';
-
 var MONTHLY = [], SPORTS = [], chartInst = null, chartReady = false, dataReady = false;
 
 function parseCSV(text){
@@ -147,7 +146,7 @@ function buildChart(){
 
 function buildSport(){
   if(!SPORTS.length)return;
-  var active = SPORTS.filter(function(s){return s.units !== 0;});
+  var active=SPORTS.filter(function(s){return s.units!==0;});
   if(!active.length)active=SPORTS;
   var max=Math.max.apply(null,active.map(function(s){return Math.abs(s.units);}));
   var html='';
