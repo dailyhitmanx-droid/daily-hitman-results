@@ -5,19 +5,19 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Daily Hitman Results</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@600;700&display=swap');
 *{box-sizing:border-box;margin:0;padding:0}
-html,body{background:#0d0d0d;padding:16px;font-family:Arial,sans-serif}
-#dh{background:#111;border-radius:14px;padding:24px 20px 20px;max-width:700px;margin:0 auto}
+html,body{background:#0a0a0a;padding:16px;font-family:Arial,sans-serif}
+#dh{background:#111;border-radius:14px;padding:24px 20px 20px;max-width:700px;margin:0 auto;border-top:2px solid #e63232}
 .dh-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px}
-.dh-title{font-family:'Rajdhani',Arial,sans-serif;font-size:20px;font-weight:700;color:#ffffff;letter-spacing:1.5px;text-transform:uppercase}
+.dh-title{font-family:'Bebas Neue',Arial,sans-serif;font-size:22px;color:#ffffff;letter-spacing:2px;text-transform:uppercase}
 .dh-right{display:flex;align-items:center;gap:8px}
-.dh-badge{background:#1a1a1a;border:0.5px solid #fff;color:#fff;font-size:10px;font-weight:700;padding:3px 9px;border-radius:4px;letter-spacing:0.5px}
+.dh-badge{background:#1a1a1a;border:0.5px solid #e63232;color:#e63232;font-size:10px;font-weight:700;padding:3px 9px;border-radius:4px;letter-spacing:0.5px}
 .dh-live{display:flex;align-items:center;gap:5px;background:#1a1a1a;border:0.5px solid #2a2a2a;color:#4ade80;font-size:10px;font-weight:700;padding:3px 8px;border-radius:4px;letter-spacing:1px}
 .dh-dot{width:6px;height:6px;border-radius:50%;background:#4ade80;animation:pulse 1.5s infinite}
 @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.4;transform:scale(0.7)}}
 .dh-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:20px}
-.dh-stat{background:#1a1a1a;border-top:2px solid #fff;border-radius:0 0 8px 8px;padding:10px 14px}
+.dh-stat{background:#1a1a1a;border-top:2px solid #e63232;border-radius:0 0 8px 8px;padding:10px 14px}
 .dh-stat-label{font-size:10px;color:#666;text-transform:uppercase;letter-spacing:0.6px;margin-bottom:4px}
 .dh-stat-val{font-family:'Rajdhani',Arial,sans-serif;font-size:26px;font-weight:700;color:#4ade80}
 .dh-nav{display:flex;gap:4px;border-bottom:1px solid #222;margin-bottom:18px}
@@ -56,7 +56,7 @@ html,body{background:#0d0d0d;padding:16px;font-family:Arial,sans-serif}
   </div>
 
   <div class="dh-nav">
-    <button id="btn-m" onclick="showTab('m')" style="background:#fff;color:#111">Monthly</button>
+    <button id="btn-m" onclick="showTab('m')" style="background:#e63232;color:#fff">Monthly</button>
     <button id="btn-s" onclick="showTab('s')" style="background:#2a2a2a;color:#fff">By Sport</button>
   </div>
 
@@ -98,7 +98,6 @@ function parseCSV(text){
     var isMonth = monthNames.some(function(m){return c0.startsWith(m);});
     if(isMonth){
       var p=parseFloat(row[1]),cu=parseFloat(row[2]);
-      // only include months with non-zero profit
       if(!isNaN(p) && p !== 0) MONTHLY.push({month:row[0],profit:p,total:isNaN(cu)?p:cu});
     } else if(inSports){
       var u=parseFloat(row[3]),w=parseFloat(row[1]);
@@ -136,10 +135,10 @@ function buildChart(){
     },
     options:{
       responsive:true,maintainAspectRatio:false,
-      plugins:{legend:{display:false},tooltip:{backgroundColor:'#111',borderColor:'#333',borderWidth:1,titleColor:'#fff',bodyColor:'#ccc',padding:10,callbacks:{label:function(ctx){var v=ctx.parsed.y;return(ctx.dataset.label==='Cumulative'?'Total: ':'Month: ')+(v>=0?'+':'')+v.toFixed(2)+'u';}}}},
+      plugins:{legend:{display:false},tooltip:{backgroundColor:'#111',borderColor:'#e63232',borderWidth:1,titleColor:'#e63232',bodyColor:'#ccc',padding:10,callbacks:{label:function(ctx){var v=ctx.parsed.y;return(ctx.dataset.label==='Cumulative'?'Total: ':'Month: ')+(v>=0?'+':'')+v.toFixed(2)+'u';}}}},
       scales:{
         x:{ticks:{color:'#666',font:{size:12},autoSkip:false},grid:{display:false},border:{color:'#1e1e1e'}},
-        y:{ticks:{color:'#555',font:{size:11},callback:function(v){return(v>=0?'+':'')+v.toFixed(0)+'u';}},grid:{color:'#181818',lineWidth:0.5},border:{display:false}}
+        y:{ticks:{color:'#999',font:{size:11},callback:function(v){return(v>=0?'+':'')+v.toFixed(0)+'u';}},grid:{color:'#181818',lineWidth:0.5},border:{display:false}}
       },
       animation:{duration:800,easing:'easeOutQuart'}
     }
@@ -165,13 +164,13 @@ function buildSport(){
 function showTab(tab){
   var bm=document.getElementById('btn-m'),bs=document.getElementById('btn-s');
   if(tab==='m'){
-    bm.style.background='#fff';bm.style.color='#111';
+    bm.style.background='#e63232';bm.style.color='#fff';
     bs.style.background='#2a2a2a';bs.style.color='#fff';
     document.getElementById('view-m').style.display='block';
     document.getElementById('view-s').style.display='none';
     buildChart();
   } else {
-    bs.style.background='#fff';bs.style.color='#111';
+    bs.style.background='#e63232';bs.style.color='#fff';
     bm.style.background='#2a2a2a';bm.style.color='#fff';
     document.getElementById('view-m').style.display='none';
     document.getElementById('view-s').style.display='block';
