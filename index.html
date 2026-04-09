@@ -21,7 +21,7 @@ html,body{background:#0a0a0a;padding:16px;font-family:Arial,sans-serif}
 .dh-stat-label{font-size:10px;color:#666;text-transform:uppercase;letter-spacing:0.6px;margin-bottom:4px}
 .dh-stat-val{font-family:'Rajdhani',Arial,sans-serif;font-size:26px;font-weight:700;color:#4ade80}
 .dh-nav{display:flex;gap:4px;border-bottom:1px solid #222;margin-bottom:18px}
-.dh-nav button{font-size:12px;font-weight:700;letter-spacing:1px;padding:7px 16px;border:none;border-radius:6px 6px 0 0;cursor:pointer;font-family:Arial,sans-serif;text-transform:uppercase}
+.dh-nav button{font-size:12px;font-weight:700;letter-spacing:1px;padding:12px 20px;border:none;border-radius:6px 6px 0 0;cursor:pointer;font-family:Arial,sans-serif;text-transform:uppercase;touch-action:manipulation;-webkit-tap-highlight-color:transparent;min-width:80px}
 .dh-legend{display:flex;gap:16px;margin-bottom:10px}
 .dh-legend span{display:flex;align-items:center;gap:5px;font-size:11px;color:#666}
 .dh-legend i{width:8px;height:8px;border-radius:2px;display:inline-block}
@@ -56,8 +56,8 @@ html,body{background:#0a0a0a;padding:16px;font-family:Arial,sans-serif}
   </div>
 
   <div class="dh-nav">
-    <button id="btn-m" onclick="showTab('m')" style="background:#e63232;color:#fff">Monthly</button>
-    <button id="btn-s" onclick="showTab('s')" style="background:#2a2a2a;color:#fff">By Sport</button>
+    <button id="btn-m" onclick="showTab('m')" ontouchend="event.preventDefault();showTab('m')" style="background:#e63232;color:#fff">Monthly</button>
+    <button id="btn-s" onclick="showTab('s')" ontouchend="event.preventDefault();showTab('s')" style="background:#2a2a2a;color:#fff">By Sport</button>
   </div>
 
   <div id="view-m">
