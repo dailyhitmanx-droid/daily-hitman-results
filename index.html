@@ -100,7 +100,7 @@ function parseCSV(text){
       var p=parseFloat(row[1]),cu=parseFloat(row[2]);
       if(!isNaN(p)&&p!==0)MONTHLY.push({month:row[0],profit:p,total:isNaN(cu)?p:cu});
     } else if(inSports){
-      var u=parseFloat(row[3]),w=parseFloat(row[1]),r=parseFloat(row[2]);
+      var u=parseFloat(row[3]),w=parseFloat(row[1]),r=parseFloat(String(row[2]).replace('%',''));
       if(!isNaN(u)&&row[0].trim()!=='')SPORTS.push({sport:row[0],units:u,wagered:isNaN(w)?0:w,roi:isNaN(r)?0:r});
     }
   }
@@ -115,7 +115,6 @@ function updateStats(){
   var last=MONTHLY[MONTHLY.length-1];
   document.getElementById('cur-badge').textContent=last.month.substring(0,3).toUpperCase()+': '+(last.profit>=0?'+':'')+last.profit.toFixed(2)+'u';
   document.getElementById('stat-units').textContent=(totalUnits>=0?'+':'')+totalUnits.toFixed(2)+'u';
-  document.getElementById('stat-roi').textContent=(roi>=0?'+':'')+roi.toFixed(2)+'%';
   document.getElementById('dhFoot').textContent='Updated '+new Date().toLocaleDateString('en-US',{month:'long',year:'numeric'});
 }
 
