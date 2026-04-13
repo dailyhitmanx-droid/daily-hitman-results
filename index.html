@@ -130,7 +130,12 @@ function buildTicker(){
       html+='<span style="display:inline-block;margin-right:24px;color:#666">'+s.sport+' <span style="color:'+roiColor+'">'+roiVal+'</span></span>';
     });
   });
-  document.getElementById('roi-ticker').innerHTML=html;
+  var el=document.getElementById('roi-ticker');
+  el.style.animation='none';
+  el.innerHTML=html;
+  setTimeout(function(){
+    el.style.animation='ticker 18s linear infinite';
+  },50);
 }
 
 function buildChart(){
