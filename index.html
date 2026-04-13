@@ -98,7 +98,7 @@ function parseCSV(text){
       if(!isNaN(p)&&p!==0)MONTHLY.push({month:row[0],profit:p,total:isNaN(cu)?p:cu});
     } else if(inSports){
       var u=parseFloat(row[3]),w=parseFloat(row[1]),r=parseFloat(row[2]);
-      if(!isNaN(u)&&row[0].trim()!=='')SPORTS.push({sport:row[0],units:u,wagered:isNaN(w)?0:w,roi:isNaN(r)?0:r*100});
+      if(!isNaN(u)&&row[0].trim()!=='')SPORTS.push({sport:row[0],units:u,wagered:isNaN(w)?0:w,roi:isNaN(r)?0:r});
     }
   }
 }
