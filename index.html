@@ -121,6 +121,8 @@ function updateStats(){
 function buildTicker(){
   if(!SPORTS.length)return;
   var items=SPORTS.filter(function(s){return s.units!==0;});
+  items.sort(function(a,b){return b.roi-a.roi;});
+  items=items.slice(0,5);
   var html='';
   [items,items].forEach(function(arr){
     arr.forEach(function(s){
